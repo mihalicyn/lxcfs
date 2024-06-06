@@ -46,10 +46,10 @@ if [ -n "${LD_LIBRARY_PATH:-}" ]; then
 else
     export LD_LIBRARY_PATH=${libdir}
 fi
-
+ps -ef | grep lxcfs
 echo "==> Spawning lxcfs"
 ${bindir}/lxcfs -p ${pidfile} ${testdir} &
-
+ps -ef | grep lxcfs
 lxcfspid=$!
 
 count=1
