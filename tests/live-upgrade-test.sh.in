@@ -6,6 +6,17 @@ set -eu
 
 [ $(id -u) -eq 0 ]
 
+if [ -z "${LXCFS_BUILD_ROOT:-}" ]; then
+	LXCFS_BUILD_ROOT="{{LXCFS_BUILD_ROOT}}"
+fi
+
+if [ -z "${DEFAULT_RUNTIME_PATH:-}" ]; then
+	DEFAULT_RUNTIME_PATH="{{DEFAULT_RUNTIME_PATH}}"
+fi
+
+echo $LXCFS_BUILD_ROOT
+echo $DEFAULT_RUNTIME_PATH
+
 NEW_LXCFS_TREE=$1
 
 echo "LXCFS trees:"
@@ -42,20 +53,20 @@ cleanup() {
 }
 
 TESTCASE="setup"
-lxcfs="{{LXCFS_BUILD_ROOT}}/lxcfs"
+lxcfs="${LXCFS_BUILD_ROOT}/lxcfs"
 
 if [ -x ${lxcfs} ]; then
 	if [ -n "${LD_LIBRARY_PATH:-}" ]; then
-		export LD_LIBRARY_PATH="{{LXCFS_BUILD_ROOT}}:${LD_LIBRARY_PATH}"
+		export LD_LIBRARY_PATH="${LXCFS_BUILD_ROOT}:${LD_LIBRARY_PATH}"
 	else
-		export LD_LIBRARY_PATH="{{LXCFS_BUILD_ROOT}}"
+		export LD_LIBRARY_PATH="${LXCFS_BUILD_ROOT}"
 	fi
 	echo "=> Spawning ${lxcfs} ${LXCFSDIR}"
 	${lxcfs} --enable-cgroup -p ${pidfile} ${LXCFSDIR} &
 	LXCFSPID=$!
 else
 	UNSHARE=0
-	LXCFSPID=$(cat "{{DEFAULT_RUNTIME_PATH}}/lxcfs.pid")
+	LXCFSPID=$(cat "${DEFAULT_RUNTIME_PATH}/lxcfs.pid")
 	echo "=> Re-using host lxcfs"
 	rmdir $LXCFSDIR
 	export LXCFSDIR=/var/lib/lxcfs
@@ -117,7 +128,7 @@ rm -f /tmp/lxcfs-iwashere
 echo "==> Ensure that lxcfs is functional BEFORE reload"
 cat ${LXCFSDIR}/proc/uptime
 
-libdir="{{LXCFS_BUILD_ROOT}}"
+libdir="${LXCFS_BUILD_ROOT}"
 
 [ ! -f /tmp/lxcfs-iwashere ]
 rm -f ${libdir}/liblxcfs.so ${libdir}/liblxcfs.la

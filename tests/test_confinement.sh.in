@@ -7,6 +7,10 @@ UUID=$(uuidgen)
 
 [ $(id -u) -eq 0 ]
 
+if [ -z "${LXCFS_BUILD_ROOT:-}" ]; then
+	LXCFS_BUILD_ROOT="{{LXCFS_BUILD_ROOT}}"
+fi
+
 d=$(mktemp -t -d tmp.XXX)
 d2=$(mktemp -t -d tmp.XXX)
 
@@ -23,7 +27,7 @@ dirname=$(dirname ${cmdline})
 
 trap cleanup EXIT HUP INT TERM
 
-lxcfs="{{LXCFS_BUILD_ROOT}}/lxcfs" $d &
+lxcfs="${LXCFS_BUILD_ROOT}/lxcfs" $d &
 pid=$!
 
 # put ourselves into x1
